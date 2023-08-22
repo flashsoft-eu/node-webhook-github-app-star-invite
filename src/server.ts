@@ -1,17 +1,19 @@
-import fastify from "npm:fastify";
-import expressMiddleware from "npm:@fastify/express";
+import express from "npm:express";
 import { githubBotEndpoint } from "./probot.ts";
 
 export const startServer = async () => {
-  const server = fastify();
-  server.register(expressMiddleware);
+  const app  = express();
+ 
 
-  server.use("/github-webhook", githubBotEndpoint);
+  app.use("/github-webhook", githubBotEndpoint);
+  app.get("/", (_req: any, res: { send: (arg0: string) => void; }) => {
+    res.send("Hello World!");
+    });
 
   try {
-    await server.listen(4440);
+    await app.listen(4440);
   } catch (err) {
-    server.log.error(err);
+    app.log.error(err);
     Deno.exit(1);
   }
 };
