@@ -1,0 +1,10 @@
+{
+  "version": "2",
+  "remote": {
+    "https://cdn.skypack.dev/-/chance@v1.1.11-XmCntyJunPB6yIJCCLLP/dist=es2019,mode=imports/optimized/chance.js": "ee72120e79ae670fda69eb1fff2a0ece180394ced6fd2b8978ddf317c3572387",
+    "https://cdn.skypack.dev/chance": "265534a37af03b0ed84e042de431ab7a45aa1a9d7748985f19767d6aff40c813",
+    "https://deno.land/std@0.198.0/collections/filter_values.ts": "16e1fc456a7969e770ec5b89edf5ac97b295ca534b47c1a83f061b409aad7814",
+    "https://deno.land/std@0.198.0/collections/without_all.ts": "1e3cccb1ed0659455b473c0766d9414b7710d8cef48862c899f445178f66b779",
+    "https://deno.land/std@0.198.0/dotenv/mod.ts": "ff7acf1c97ba57af512ecb6f9094fa96e1f63cca1960a7687616fa86bab7e356"
+  }
+}
