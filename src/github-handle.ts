@@ -1,69 +1,116 @@
-import type { Context, Probot } from "npm:probot";
+import type { Context, Probot } from "probot";
+import { Octokit } from "@octokit/rest";
+import { config } from './config'
+// import { App } from "octokit";
 
 type TUsedContexts = "star.created" | "star.deleted";
 type AppContexts = Context<TUsedContexts>;
 type User = AppContexts["payload"]["sender"];
+type ProbotOktokit = Awaited<ReturnType<Probot["auth"]>>
 
 const allowedOrgs = ["flashsoft-eu", "andrei0x309"];
-const allowedRepos = ["deno-slack-api-backup"];
+const allowedRepos = ["deno-slack-api-backup-preview"];
+
+const repoMap = { 
+  "deno-slack-api-backup-preview": "deno-slack-user-api",
+} as Record<string, string>;
+
+const installationIdMap = {
+  'flashsoft-eu': 40959841,
+  'andrei0x309': 40959837
+} as Record<string, number>;
 
 export const githubAppMain = (app: Probot) => {
-  const announceInvite = async (user: User) => {
-    const authApp = await app.auth();
+
+  const orgAdmin = new Octokit({
+    auth: config.ORG_TOKEN,
+  });
+  
+  // const octoApp = new App({
+  //   appId: Number(config.GITHUB_APP_ID),
+  //   privateKey: config.GITHUB_APP_PRIVATE_KEY,
+  // });
+
+  const announceInvite = async (user: User, repo: string, authApp: ProbotOktokit  ) => {
     const timeString = new Date().toLocaleTimeString();
+
+    console.log(await orgAdmin.teams.listDiscussionsInOrg({
+      org: allowedOrgs[0],
+      team_slug: 'public',
+    }))
+
     await authApp.teams.createDiscussionCommentInOrg({
-      org: "flashsoft-eu",
-      team_slug: "flashsoft-eu",
+      org: allowedOrgs[0],
+      team_slug: 'public',
       discussion_number: 1,
       body:
-        `@${user.login} has been invited to the organization. Invitation was sent at ${timeString}`,
+        `@${user.login} has been invited to the repo ${repo}. Invitation was sent at ${timeString}`,
     });
   };
 
-  const isUserinOrg = async ({
+  const isUserColab = async ({
     org,
     user,
-  }: { org: string; user: User }) => {
-    const authApp = await app.auth();
-    const isUserinOrg = await authApp.orgs.checkMembershipForUser({
-      org: org,
+    repo  
+  }: { org: string, repo:string,  user: User }) => {
+    const authApp = await app.auth(installationIdMap[org]);
+    let isColab = false
+    try {
+    await authApp.repos.checkCollaborator({
+      owner: org,
+      repo,
       username: user.login,
     });
-    return isUserinOrg;
-  };
+    isColab = true
+    }  catch (e) {
+      console.error(e);
+    }
+    return { isColab, authApp };
+  }
+
+ 
 
   const hwdStarCreated = async (context: AppContexts) => {
+    const [, repo] = context.payload.repository.full_name.split("/");
+    const { isColab, authApp } = await isUserColab({ org: allowedOrgs[0], user: context.payload.sender, repo: repoMap[repo] })
     if (
-      await isUserinOrg({ org: "flashsoft-eu", user: context.payload.sender })
+      isColab
     ) {
       return 0;
     }
-    const starGazerUser = context.payload.sender.id;
-    const authApp = await app.auth();
-    authApp.orgs.createInvitation({
-      org: "flashsoft-eu",
-      invitation_id: starGazerUser,
-      invitee_id: starGazerUser,
-    });
-    await announceInvite(context.payload.sender);
-    return 0;
+    try {
+      // await authApp.repos.addCollaborator(
+      //   {
+      //       owner: allowedOrgs[0],
+      //       repo: repoMap[repo],
+      //       username: context.payload.sender.login,
+      //       permission: "pull",
+      //   })
+
+      await  announceInvite(context.payload.sender,  repoMap[repo], authApp);
+  } catch (e) {
+    app.log.error(e as string);
+  }    return 0;
   };
 
   const hwdStarDeleted = async (context: AppContexts) => {
+    const [, repo] = context.payload.repository.full_name.split("/");
+    const { isColab, authApp } = await isUserColab({ org: allowedOrgs[0], user: context.payload.sender, repo: repoMap[repo] })
     if (
-      !(await isUserinOrg({
-        org: "flashsoft-eu",
-        user: context.payload.sender,
-      }))
+      !isColab
     ) {
       return 0;
     }
-    const starGazerUser = context.payload.sender.login;
-    const authApp = await app.auth();
-    authApp.orgs.removeMember({
-      org: "flashsoft-eu",
-      username: starGazerUser,
-    });
+    try {
+      await authApp.repos.removeCollaborator(
+        {
+            owner: allowedOrgs[0],
+            repo: repoMap[repo],
+            username: context.payload.sender.login,
+        })
+    } catch (e) {
+      app.log.error(e as string);
+    }
     return 0;
   };
 
@@ -73,12 +120,13 @@ export const githubAppMain = (app: Probot) => {
     const { fn } = this;
     try {
       const [org, repo] = context.payload.repository.full_name.split("/");
+      console.log(org, repo);
       if (!allowedOrgs.includes(org) || !allowedRepos.includes(repo)) {
         throw new Error("Skip Org or Repo not on allowed list");
       }
       return fn(context);
     } catch (e) {
-      app.log.info(e);
+      app.log.info(e as string);
     }
   }
 

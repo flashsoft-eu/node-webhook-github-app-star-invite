@@ -1,5 +1,3 @@
-import { startServer } from "./src/server.ts";
+import { startServer } from "./src/server";
 
-if (import.meta.main) {
-  await startServer();
-}
+startServer();
