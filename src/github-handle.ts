@@ -1,6 +1,6 @@
 import { Context, Probot } from "probot";
 import { Octokit } from "@octokit/rest";
-import { config } from './config'
+import { config } from './config.js'
 // import { App } from "octokit";
 
 type TUsedContexts = "star.created" | "star.deleted";
@@ -65,8 +65,9 @@ export const githubOauthCallback = async (req: any, res: any) => {
 
 
 const getHeaders = () => {
+  const cookie = Buffer.from(config.BOT_COOKIE_BASE64, 'base64').toString('utf-8')
   return  {
-    cookie: config.GITHUB_BOT_COOKIE,
+    cookie,
     accept: "application/json",
     'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
     origin: 'https://github.com',
@@ -93,10 +94,11 @@ const getAuthenticityTokenDiscussions = async () => {
     }
   })
   const html = await htmlReq.text()
-  const token = html.match(/<form.*?\/discussions\/1\/comments.*?authenticity_token.*?value=(?:"|')(.*?)(?:"|')/)?.[1]
+  let token: Array<string> | null | string = html.match(/\/discussions\/1\/comments.*?authenticity.*?value=(?:"|')(.*?)(?:"|')/)
   console.log(html)
   console.log(token)
-  return token || 'Y5yO3IU2D9vQC5fEaZzI2rbD0YkvjYEJPFSCO73NgfGLkaDC234YSW8vssyEPw3Wn3Xe3MIz61ZKxdUNvCfdiQ'
+  token = token && token[1]
+  return token ?? 'Y5yO3IU2D9vQC5fEaZzI2rbD0YkvjYEJPFSCO73NgfGLkaDC234YSW8vssyEPw3Wn3Xe3MIz61ZKxdUNvCfdiQ'
 }
 
 
@@ -168,7 +170,7 @@ export const githubAppMain = (app: Probot) => {
       return 0;
     }
     try {
-      const colab = await authApp.repos.addCollaborator(
+       await authApp.repos.addCollaborator(
         {
             owner: allowedOrgs[0],
             repo: repoMap[repo],

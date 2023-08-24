@@ -1,7 +1,8 @@
 {
   "scripts": {
     "dev": "node --loader @swc-node/register/esm main.ts",
-    "start": "node --loader @swc-node/register/esm main.ts"
+    "build": "tsc",
+    "start": "node ./build/main.js"
   },
   "name": "app-bot-github",
   "version": "1.0.0",

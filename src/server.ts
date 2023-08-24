@@ -1,6 +1,6 @@
 import express from "express";
-import { githubBotEndpoint } from "./probot";
-import { githubOauthLogin, githubOauthCallback } from "./github-handle";
+import { githubBotEndpoint } from "./probot.js";
+import { githubOauthLogin, githubOauthCallback } from "./github-handle.js";
 import morgan from "morgan";
 
 
