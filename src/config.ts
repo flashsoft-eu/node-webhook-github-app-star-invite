@@ -7,4 +7,7 @@ export const config = process.env as {
   GITHUB_CLIENT_SECRET: string;
   GITHUB_WEBHOOK_SECRET: string;
   ORG_TOKEN: string;
+  GITHUB_OAUTH_CLIENT_ID: string;
+  GITHUB_OAUTH_CLIENT_SECRET: string;
+  GITHUB_BOT_COOKIE : string;
 };

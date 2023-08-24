@@ -1,0 +1,26 @@
+{
+  "scripts": {
+    "dev": "node --loader @swc-node/register/esm main.ts",
+    "start": "node --loader @swc-node/register/esm main.ts"
+  },
+  "name": "app-bot-github",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/main.js",
+  "type": "module",
+  "dependencies": {
+    "@octokit/rest": "^20.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "morgan": "^1.10.0",
+    "probot": "^12.3.1",
+    "@swc-node/register": "^1.6.7",
+    "@swc/core": "^1.3.78"
+  },
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.4.8",
+    "@types/morgan": "^1.9.4",
+    "@types/pino-std-serializers": "^4.0.0",
+    "typescript": "^5.1.6"
+  }
+}
