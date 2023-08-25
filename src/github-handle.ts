@@ -1,12 +1,12 @@
 import { Context, Probot } from "probot";
-import { Octokit } from "@octokit/rest";
+// import { Octokit } from "@octokit/rest";
 import { config } from './config.js'
 // import { App } from "octokit";
 
 type TUsedContexts = "star.created" | "star.deleted";
 type AppContexts = Context<TUsedContexts>;
 type User = AppContexts["payload"]["sender"];
-type ProbotOktokit = Awaited<ReturnType<Probot["auth"]>>
+// type ProbotOktokit = Awaited<ReturnType<Probot["auth"]>>
 
 const allowedOrgs = ["flashsoft-eu", "andrei0x309"];
 const allowedRepos = ["deno-slack-api-backup-preview"];
