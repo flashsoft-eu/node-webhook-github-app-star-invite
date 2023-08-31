@@ -22,6 +22,10 @@ The motivation behind this app is to create a way to share code with people othe
 
 Creating invites has a very low rate limit, so you can invite less than a dozen people per day. This is a limitation of the GitHub API.
 
+### Rust version here
+
+[https://github.com/flashsoft-eu/rs-webhook-github-app-star-invite](https://github.com/flashsoft-eu/rs-webhook-github-app-star-invite)
+
 ### Current development status
 
 Working but bare.
